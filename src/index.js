@@ -29,8 +29,8 @@ export default {
 			console.log("No attachments. Skipping sending to DropBox");
 		} else {
 			const BankStatementSubjectPrefix = env.BANK_STATEMENT_SUBJECT_PREFIX;
-			const beginIndex = parsedEmail.subject.indexOf(BankStatementSubjectPrefix) + BankStatementSubjectPrefix.length;
-			if (beginIndex > 0) {
+			if (parsedEmail.subject.indexOf(BankStatementSubjectPrefix) > 0) {
+				const beginIndex = parsedEmail.subject.indexOf(BankStatementSubjectPrefix) + BankStatementSubjectPrefix.length;
 				const endIndex = parsedEmail.subject.indexOf(",");
 				const bankStatementId = parsedEmail.subject.substring(beginIndex, endIndex).trim();
 				let currentYear = new Date().getUTCFullYear();
