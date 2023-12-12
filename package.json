@@ -1,6 +1,6 @@
 {
   "name": "email-worker-izvodi",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "private": true,
   "scripts": {
     "deploy": "wrangler deploy",
@@ -9,5 +9,8 @@
   },
   "devDependencies": {
     "wrangler": "^3.0.0"
+  },
+  "dependencies": {
+    "postal-mime": "^2.0.2"    
   }
 }
