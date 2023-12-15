@@ -35,17 +35,45 @@ export default {
 				const bankStatementId = parsedEmail.subject.substring(beginIndex, endIndex).trim();
 				let currentYear = new Date().getUTCFullYear();
 				const attFileName = currentYear + bankStatementId + "-" + currentYear + bankStatementId + ".html";
-				for (const att of parsedEmail.attachments) {
-					const dropBoxResponse = await fetch("https://content.dropboxapi.com/2/files/upload", {
-						method: "POST",
-						headers: {
-						"Authorization": `Bearer ${env.DROPBOX_TOKEN}`,
-						"Content-Type": "application/octet-stream",
-						"Dropbox-API-Arg": '{"path":"/Racunovodstvo KCODE/Izvodi/' + attFileName + '"}'
-						},
-						body: att.content
-					});
-					console.log("DropBox response code: " + dropBoxResponse.status);
+				// get DropBox Access Token with Refresh Token
+				const access = {
+					grant_type: "refresh_token",
+					refresh_token: `${env.DB_REFRESH_TOKEN}`,
+					client_id: `${env.DB_CLIENT_ID}`,
+					client_secret: `${env.DB_CLIENT_SECRET}`
+				}
+				var bodyReqToken = [];
+				for (var property in access) {
+					var encodedKey = encodeURIComponent(property);
+					var encodedValue = encodeURIComponent(access[property]);
+					bodyReqToken.push(encodedKey + "=" + encodedValue);
+				}
+				bodyReqToken = bodyReqToken.join("&");				
+				var access_token;
+				await fetch("https://api.dropbox.com/oauth2/token", {
+					method: "POST",
+					headers: {
+						"Content-Type": "application/x-www-form-urlencoded;charset=UTF-8",
+					},
+					body: bodyReqToken,
+				}).then(response => response.json()).then(data=>{ access_token=data.access_token; })
+				if (access_token == undefined) {
+					console.log("error getting access token from DropBox");
+				} else {
+					console.log("Got access token for DropBox application")
+					// upload attachments
+					for (const att of parsedEmail.attachments) {
+						const dropBoxResponse = await fetch("https://content.dropboxapi.com/2/files/upload", {
+							method: "POST",
+							headers: {
+							"Authorization": `Bearer ${access_token}`,
+							"Content-Type": "application/octet-stream",
+							"Dropbox-API-Arg": '{"path":"/Racunovodstvo KCODE/Izvodi/' + attFileName + '"}'
+							},
+							body: att.content
+						});
+						console.log("DropBox upload response code: " + dropBoxResponse.status);
+					}
 				}
 			} else {
 				console.log("Not a bank statement. Skipping sending to DropBox")
