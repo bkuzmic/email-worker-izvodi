@@ -29,7 +29,7 @@ export default {
 			console.log("No attachments. Skipping sending to DropBox");
 		} else {
 			const BankStatementSubjectPrefix = env.BANK_STATEMENT_SUBJECT_PREFIX;
-			if (parsedEmail.subject.indexOf(BankStatementSubjectPrefix) > 0) {
+			if (parsedEmail.subject.indexOf(BankStatementSubjectPrefix) > -1) {
 				const beginIndex = parsedEmail.subject.indexOf(BankStatementSubjectPrefix) + BankStatementSubjectPrefix.length;
 				const endIndex = parsedEmail.subject.indexOf(",");
 				const bankStatementId = parsedEmail.subject.substring(beginIndex, endIndex).trim();
